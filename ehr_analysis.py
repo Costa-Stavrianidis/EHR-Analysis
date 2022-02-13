@@ -5,13 +5,14 @@ from datetime import datetime
 
 def parse_data(filename: str) -> list[list[str]]:
     """Read and parses the data file."""
-    file = open(filename, 'r', encoding='utf-8-sig')  # O(1)
-    lines = file.readlines()  # O(N)
-    file_list = []  # O(1)
-    for row in lines:  # O(N)
-        row = row.split("\t")  # O(1)
-        file_list.append(row)  # O(1)
-    return(file_list)  # O(1)
+    with open(filename, "r", encoding="utf-8-sig") as file:  # O(1)
+        lines = file.readlines()  # O(N)
+        file_list = []  # O(1)
+        for row in lines:  # O(N)
+            row = row.split("\t")  # O(1)
+            file_list.append(row)  # O(1)
+    return file_list  # O(1)
+
 
 # 1 + N + 1 + N * (1 + 1) + 1 -> 3(N) + 3 -> O(N)
 # Opened file, created empty list which is constant time. Read through lines
@@ -22,8 +23,10 @@ def parse_data(filename: str) -> list[list[str]]:
 
 
 def num_older_than(age: float, patient_data: list[list[str]]) -> int:
-    """Take data and returns the number of patients older"""
-    """than a given age (in years)."""
+    """Take data and returns the number of patients older
+    than a given age (in years).
+
+    """
     # Header row must have the DOB column labeled exactly "PatientDateOfBirth"
     today = datetime.now()  # O(1)
     x = patient_data[0].index("PatientDateOfBirth")  # O(1)
@@ -34,7 +37,8 @@ def num_older_than(age: float, patient_data: list[list[str]]) -> int:
     for i in DOB:  # O(N)
         if ((today - i) / 365.2425).days > age:  # O(1)
             older += 1  # O(1)
-    return(older)  # O(1)
+    return older  # O(1)
+
 
 # 1 + 1 + 1 + N * 1 + N * (1 + 1) + 1 -> 3N + 4 -> O(N)
 # Made a datetime variable, assigned a variable an integer, created an empty
@@ -46,18 +50,21 @@ def num_older_than(age: float, patient_data: list[list[str]]) -> int:
 # constant time, so the overall complexity is O(N).
 
 
-def sick_patients(
-        lab: str, gt_lt: str, value: float, lab_data: list[list[str]]) -> list[str]:
-    """Take data and returns a unique list of patients who have a given test"""
-    """with value above (">") or below ("<") a given level."""
+def sick_patients1(
+    lab: str, gt_lt: str, value: float, lab_data: list[list[str]]
+) -> list[str]:
+    """Take data and returns a unique list of patients who have a given test
+    with value above (">") or below ("<") a given level.
+
+    """
     # Header row must have the patient ID column labeled exactly "PatientID"
     # Header row must have the given test column labeled exactly "LabName"
     # Header row must have the given test result labeled exactly "LabValue"
-    x = lab_data[0].index("PatientID")  # O(1)
-    y = lab_data[0].index("LabName")  # O(1)
-    z = lab_data[0].index("LabValue")  # O(1)
+    x = lab_data[0].index("PatientID")  # O(N)
+    y = lab_data[0].index("LabName")  # O(N)
+    z = lab_data[0].index("LabValue")  # O(N)
     patients = []  # O(1)
-    patients_sick = []  # O(1)
+    patients_sick = set()  # O(1)
     for row in lab_data[1:]:  # O(N)
         if row[y] == lab:  # O(1)
             patients.append(row)  # O(1)
@@ -65,15 +72,16 @@ def sick_patients(
         rows[z] = float(rows[z])  # O(1)
         if gt_lt == ">":  # O(1)
             if rows[z] > value:  # O(1)
-                patients_sick.append(rows[x])  # O(1)
+                patients_sick.add(rows[x])  # O(1)
         elif gt_lt == "<":  # O(1)
             if rows[z] < value:  # O(1)
-                patients_sick.append(rows[x])  # O(1)
-    patients_sick = list(set(patients_sick))  # O(1)
-    return(patients_sick)  # O(1)
+                patients_sick.add(rows[x])  # O(1)
+    patients_sick = list(patients_sick)  # O(1)
+    return patients_sick  # O(1)
 
-# 1 + 1 + 1 + 1 + 1 + N * (1 * 1) + N * (1 + 1 * 1 * 1 + 1 * 1 * 1) + 1 + 1
-# -> 5N + 7 -> O(N)
+
+# N + N + N + 1 + 1 + N * (1 * 1) + N * (1 + 1 * 1 * 1 + 1 * 1 * 1) + 1 + 1
+# -> 7N + 7 -> O(N)
 # Assigned three variables as integers which is constant time, and made two
 # empty lists which is also constant time. Iterated through lab data (linear)
 # and added rows (constant). Iterated through the new set (linear) and checked
