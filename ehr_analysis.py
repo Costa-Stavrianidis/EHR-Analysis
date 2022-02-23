@@ -19,7 +19,7 @@ def parse_data(filename: str) -> list[list[str]]:
 # of file which is linear time, and iterated through lines which is linear time
 # while splitting the rows (constant) and appending to a new list (constant).
 # Finally, the list of lists was returned, which is constant, so the complexity
-# overall is O(n).
+# overall is O(N).
 
 
 def num_older_than(age: float, patient_data: list[list[str]]) -> int:
@@ -50,7 +50,7 @@ def num_older_than(age: float, patient_data: list[list[str]]) -> int:
 # constant time, so the overall complexity is O(N).
 
 
-def sick_patients1(
+def sick_patients(
     lab: str, gt_lt: str, value: float, lab_data: list[list[str]]
 ) -> list[str]:
     """Take data and returns a unique list of patients who have a given test
@@ -88,3 +88,35 @@ def sick_patients1(
 # to see if values were greater than or less than (linear). Finally, kept
 # unique values and returned the final set, which is constant time. The overall
 # complexity is O(N).
+
+
+def admission_age(
+    patient: str, patient_data: list[list[str]], lab_data: list[list[str]]
+) -> int:
+    """Take lab and patient data and return the age at first admission
+    of any given patient.
+
+    """
+    # Header rows must have patient ID column labeled exactly "PatientID"
+    # Patient data header row must have DOB column labeled exactly "PatientDateOfBirth"
+    # Lab data header row must have admission time labeled exactly "LabDateTime"
+    patient_ID_col_index = patient_data[0].index("PatientID")
+    patient_DOB_col_index = patient_data[0].index("PatientDateOfBirth")
+    lab_ID_col_index = lab_data[0].index("PatientID")
+    lab_admission_col_index = lab_data[0].index("LabDateTime\n")
+    for row in patient_data:
+        if row[patient_ID_col_index] == patient:
+            patient_DOB = datetime.strptime(
+                row[patient_DOB_col_index], "%Y-%m-%d %H:%M:%S.%f"
+            )
+    admissions = []
+    for row in lab_data:
+        if row[lab_ID_col_index] == patient:
+            admissions.append(
+                datetime.strptime(
+                    row[lab_admission_col_index][:23], "%Y-%m-%d %H:%M:%S.%f"
+                )
+                - patient_DOB
+            )
+    age = int(min(admissions).days / 365)
+    return age
