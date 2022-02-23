@@ -3,120 +3,177 @@
 from datetime import datetime
 
 
-def parse_data(filename: str) -> list[list[str]]:
-    """Read and parses the data file."""
+class Patient:
+    """Patient class with instance attributes."""
+
+    def __init__(self, ID: [str], gender: [str], DOB: [str], race: [str]):
+        """Initialize the patient class."""
+        self.ID = ID
+        self.gender = gender
+        self.DOB = DOB
+        self.race = race
+
+    @property
+    def age(self) -> int:
+        """Age of patient."""
+        today = datetime.now()
+        dateofbirth = datetime.strptime(self.DOB, "%Y-%m-%d %H:%M:%S.%f")
+        years = (today - dateofbirth) / 365.2425
+        return years.days
+
+
+class Lab:
+    """Lab class with instance attributes."""
+
+    def __init__(self, ID: [str], test: [str], value: [str], admission: [str]):
+        """Initialize the lab class."""
+        self.ID = ID
+        self.test = test
+        self.value = value
+        self.admission = admission
+
+
+def parse_patient_data(filename: str) -> list[Patient]:
+    """Read and parse the patient data file."""
+    # Header row must have variables named exactly as defined below
     with open(filename, "r", encoding="utf-8-sig") as file:  # O(1)
         lines = file.readlines()  # O(N)
         file_list = []  # O(1)
         for row in lines:  # O(N)
             row = row.split("\t")  # O(1)
             file_list.append(row)  # O(1)
-    return file_list  # O(1)
+        patient_ID_col_index = file_list[0].index("PatientID")  # O(N)
+        patient_gender_col_index = file_list[0].index("PatientGender")  # O(N)
+        patient_DOB_col_index = file_list[0].index("PatientDateOfBirth")  # O(N)
+        patient_race_col_index = file_list[0].index("PatientRace")  # O(N)
+        patient_list = []  # O(1)
+        for patients in file_list[1:]:  # O(N)
+            patient_list.append(
+                Patient(
+                    patients[patient_ID_col_index],
+                    patients[patient_gender_col_index],
+                    patients[patient_DOB_col_index],
+                    patients[patient_race_col_index],
+                )
+            )  # O(4)
+    return patient_list  # O(1)
 
 
-# 1 + N + 1 + N * (1 + 1) + 1 -> 3(N) + 3 -> O(N)
-# Opened file, created empty list which is constant time. Read through lines
-# of file which is linear time, and iterated through lines which is linear time
-# while splitting the rows (constant) and appending to a new list (constant).
-# Finally, the list of lists was returned, which is constant, so the complexity
-# overall is O(N).
+# 1 + N + 1 + N * (1 + 1) + N + N + N + N + 1 + N * (4) + 1 -> 11(N) + 4 -> O(N)
 
 
-def num_older_than(age: float, patient_data: list[list[str]]) -> int:
-    """Take data and returns the number of patients older
+def parse_lab_data(filename: str) -> list[Lab]:
+    """Read and parse the lab data file."""
+    # Header row must have variables named exactly as defined below
+    with open(filename, "r", encoding="utf-8-sig") as file:  # O(1)
+        lines = file.readlines()  # O(N)
+        file_list = []  # O(1)
+        for row in lines:  # O(N)
+            row = row.split("\t")  # O(1)
+            file_list.append(row)  # O(1)
+        lab_ID_col_index = file_list[0].index("PatientID")  # O(N)
+        lab_test_col_index = file_list[0].index("LabName")  # O(N)
+        lab_value_col_index = file_list[0].index("LabValue")  # O(N)
+        lab_admission_col_index = file_list[0].index("LabDateTime\n")  # O(N)
+        lab_list = []  # O(1)
+        for labs in file_list[1:]:  # O(N)
+            lab_list.append(
+                Lab(
+                    labs[lab_ID_col_index],
+                    labs[lab_test_col_index],
+                    labs[lab_value_col_index],
+                    labs[lab_admission_col_index],
+                )
+            )  # O(4)
+    return lab_list  # O(1)
+
+
+# 1 + N + 1 + N * (1 + 1) + N + N + N + N + 1 + N * (4) + 1 -> 11(N) + 4 -> O(N)
+
+# Both functions open the file and create a list, with every element of the list
+# being a row in the data file. They then use the header row of the data file
+# to find which index of each row contains the variable named in the header row.
+# After finding the indexes for the variables, the functions iterate through the
+# list of rows, taking the elements of the rows and defining the custom class
+# (Patient or Lab) attributes as the elements of the rows that match the
+# attributes. This will create a Patient or Lab object for each row in the dataset.
+# The functions then return a list of Patient objects or a list of Lab objects. The
+# overall complexity is O(N), which is linear time. Note that to add more columns
+# of the data as attributes, simply add the attributes to the Patient or Lab class,
+# define the index of the column in the function, and then add the attribute to
+# the Patient or Lab class in the function using that index.
+
+
+def num_older_than(age: float, patient_data: list[Patient]) -> int:
+    """Take data and return the number of patients older
     than a given age (in years).
 
     """
-    # Header row must have the DOB column labeled exactly "PatientDateOfBirth"
-    today = datetime.now()  # O(1)
-    x = patient_data[0].index("PatientDateOfBirth")  # O(1)
-    DOB = []  # O(1)
     older = 0  # O(1)
-    for row in patient_data[1:]:  # O(N)
-        DOB.append(datetime.strptime(row[x], "%Y-%m-%d %H:%M:%S.%f"))  # O(1)
-    for i in DOB:  # O(N)
-        if ((today - i) / 365.2425).days > age:  # O(1)
+    for patients in patient_data:  # O(N)
+        if patients.age > age:  # O(1)
             older += 1  # O(1)
     return older  # O(1)
 
 
-# 1 + 1 + 1 + N * 1 + N * (1 + 1) + 1 -> 3N + 4 -> O(N)
-# Made a datetime variable, assigned a variable an integer, created an empty
-# list, and set a variable to zero, all of which are constant time. Iterated
-# through patient data which is linear time, and appended to empty list which
-# is constant. Iterated through the appended list, which is linear time, and
-# then made a Boolean statement which is constant, and added a constant to an
-# integer, which is constant time. Finally, the integer was returned, which is
-# constant time, so the overall complexity is O(N).
+# 1 + N * (1 * 1) + 1 -> N + 3 -> O(N)
+
+# This function takes the patient data in the form of a list of
+# Patient objects. It will then iterate through this list and find
+# how many patients have an age property (their age as of today in
+# years) that is above the given input age in the function. The
+# overall complexity is O(N), so linear time.
 
 
 def sick_patients(
-    lab: str, gt_lt: str, value: float, lab_data: list[list[str]]
+    lab: str, gt_lt: str, lab_value: float, lab_data: list[Lab]
 ) -> list[str]:
-    """Take data and returns a unique list of patients who have a given test
+    """Take data and return a unique list of patients who have a given test
     with value above (">") or below ("<") a given level.
 
     """
-    # Header row must have the patient ID column labeled exactly "PatientID"
-    # Header row must have the given test column labeled exactly "LabName"
-    # Header row must have the given test result labeled exactly "LabValue"
-    x = lab_data[0].index("PatientID")  # O(N)
-    y = lab_data[0].index("LabName")  # O(N)
-    z = lab_data[0].index("LabValue")  # O(N)
     patients = []  # O(1)
     patients_sick = set()  # O(1)
-    for row in lab_data[1:]:  # O(N)
-        if row[y] == lab:  # O(1)
-            patients.append(row)  # O(1)
+    for labs in lab_data:  # O(N)
+        if labs.test == lab:  # O(1)
+            patients.append(labs)  # O(1)
     for rows in patients:  # O(N)
-        rows[z] = float(rows[z])  # O(1)
+        rows.value = float(rows.value)  # O(1)
         if gt_lt == ">":  # O(1)
-            if rows[z] > value:  # O(1)
-                patients_sick.add(rows[x])  # O(1)
+            if rows.value > lab_value:  # O(1)
+                patients_sick.add(rows.ID)  # O(1)
         elif gt_lt == "<":  # O(1)
-            if rows[z] < value:  # O(1)
-                patients_sick.add(rows[x])  # O(1)
+            if rows.value < lab_value:  # O(1)
+                patients_sick.add(rows.ID)  # O(1)
     patients_sick = list(patients_sick)  # O(1)
     return patients_sick  # O(1)
 
 
-# N + N + N + 1 + 1 + N * (1 * 1) + N * (1 + 1 * 1 * 1 + 1 * 1 * 1) + 1 + 1
-# -> 7N + 7 -> O(N)
-# Assigned three variables as integers which is constant time, and made two
-# empty lists which is also constant time. Iterated through lab data (linear)
-# and added rows (constant). Iterated through the new set (linear) and checked
-# to see if values were greater than or less than (linear). Finally, kept
-# unique values and returned the final set, which is constant time. The overall
-# complexity is O(N).
+# 1 + 1 + N * (1 * 1) + N * (1 + 1 * 1 * 1 + 1 * 1 * 1) + 1 + 1 -> 5N + 4 -> O(N)
+
+# This function takes data in the form of a list of Lab objects. It
+# will iterate through the list of of Lab objects and create a unique
+# list of strings that are patient ID's of patients that have a certain
+# lab test value above or below a given level. The overall complexity is O(N),
+# which is linear time.
 
 
 def admission_age(
-    patient: str, patient_data: list[list[str]], lab_data: list[list[str]]
+    patient: str, patient_data: list[Patient], lab_data: list[Lab]
 ) -> int:
     """Take lab and patient data and return the age at first admission
     of any given patient.
 
     """
-    # Header rows must have patient ID column labeled exactly "PatientID"
-    # Patient data header row must have DOB column labeled exactly "PatientDateOfBirth"
-    # Lab data header row must have admission time labeled exactly "LabDateTime"
-    patient_ID_col_index = patient_data[0].index("PatientID")
-    patient_DOB_col_index = patient_data[0].index("PatientDateOfBirth")
-    lab_ID_col_index = lab_data[0].index("PatientID")
-    lab_admission_col_index = lab_data[0].index("LabDateTime\n")
-    for row in patient_data:
-        if row[patient_ID_col_index] == patient:
-            patient_DOB = datetime.strptime(
-                row[patient_DOB_col_index], "%Y-%m-%d %H:%M:%S.%f"
-            )
+    for patients in patient_data:
+        if patients.ID == patient:
+            patient_DOB = datetime.strptime(patients.DOB, "%Y-%m-%d %H:%M:%S.%f")
     admissions = []
-    for row in lab_data:
-        if row[lab_ID_col_index] == patient:
+    for labs in lab_data:
+        if labs.ID == patient:
             admissions.append(
-                datetime.strptime(
-                    row[lab_admission_col_index][:23], "%Y-%m-%d %H:%M:%S.%f"
-                )
+                datetime.strptime(labs.admission[:23], "%Y-%m-%d %H:%M:%S.%f")
                 - patient_DOB
             )
-    age = int(min(admissions).days / 365)
+    age = int(min(admissions).days / 365.2425)
     return age
