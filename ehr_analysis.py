@@ -100,18 +100,23 @@ def admission_age(
     # Header rows must have patient ID column labeled exactly "PatientID"
     # Patient data header row must have DOB column labeled exactly "PatientDateOfBirth"
     # Lab data header row must have admission time labeled exactly "LabDateTime"
-    x1 = patient_data[0].index("PatientID")
-    x2 = patient_data[0].index("PatientDateOfBirth")
-    y1 = lab_data[0].index("PatientID")
-    y2 = lab_data[0].index("LabDateTime\n")
+    patient_ID_col_index = patient_data[0].index("PatientID")
+    patient_DOB_col_index = patient_data[0].index("PatientDateOfBirth")
+    lab_ID_col_index = lab_data[0].index("PatientID")
+    lab_admission_col_index = lab_data[0].index("LabDateTime\n")
     for row in patient_data:
-        if row[x1] == patient:
-            patient_DOB = datetime.strptime(row[x2], "%Y-%m-%d %H:%M:%S.%f")
+        if row[patient_ID_col_index] == patient:
+            patient_DOB = datetime.strptime(
+                row[patient_DOB_col_index], "%Y-%m-%d %H:%M:%S.%f"
+            )
     admissions = []
     for row in lab_data:
-        if row[y1] == patient:
+        if row[lab_ID_col_index] == patient:
             admissions.append(
-                datetime.strptime(row[y2][:23], "%Y-%m-%d %H:%M:%S.%f") - patient_DOB
+                datetime.strptime(
+                    row[lab_admission_col_index][:23], "%Y-%m-%d %H:%M:%S.%f"
+                )
+                - patient_DOB
             )
     age = int(min(admissions).days / 365)
     return age
