@@ -33,75 +33,75 @@ class Lab:
         self.admission = admission
 
 
-def parse_patient_data(filename: str) -> list[Patient]:
-    """Read and parse the patient data file."""
+def parse_data(filename: str, data_type: str) -> list[Patient] | list[Lab]:
+    """Read and parse the patient or lab data file."""
     # Header row must have variables named exactly as defined below
-    with open(filename, "r", encoding="utf-8-sig") as file:  # O(1)
-        lines = file.readlines()  # O(N)
-        file_list = []  # O(1)
-        for row in lines:  # O(N)
-            row = row.split("\t")  # O(1)
-            file_list.append(row)  # O(1)
-        patient_ID_col_index = file_list[0].index("PatientID")  # O(N)
-        patient_gender_col_index = file_list[0].index("PatientGender")  # O(N)
-        patient_DOB_col_index = file_list[0].index("PatientDateOfBirth")  # O(N)
-        patient_race_col_index = file_list[0].index("PatientRace")  # O(N)
-        patient_list = []  # O(1)
-        for patients in file_list[1:]:  # O(N)
-            patient_list.append(
-                Patient(
-                    patients[patient_ID_col_index],
-                    patients[patient_gender_col_index],
-                    patients[patient_DOB_col_index],
-                    patients[patient_race_col_index],
-                )
-            )  # O(4)
-    return patient_list  # O(1)
+    if data_type == "Patient":  # O(1)
+        with open(filename, "r", encoding="utf-8-sig") as patient_file:  # O(1)
+            patient_lines = patient_file.readlines()  # O(N)
+            patient_file_list = []  # O(1)
+            for row in patient_lines:  # O(N)
+                row = row.split("\t")  # O(1)
+                patient_file_list.append(row)  # O(1)
+            patient_ID_col_index = patient_file_list[0].index("PatientID")  # O(N)
+            patient_gender_col_index = patient_file_list[0].index(
+                "PatientGender"
+            )  # O(N)
+            patient_DOB_col_index = patient_file_list[0].index(
+                "PatientDateOfBirth"
+            )  # O(N)
+            patient_race_col_index = patient_file_list[0].index("PatientRace")  # O(N)
+            patient_list = []  # O(1)
+            for patients in patient_file_list[1:]:  # O(N)
+                patient_list.append(
+                    Patient(
+                        patients[patient_ID_col_index],
+                        patients[patient_gender_col_index],
+                        patients[patient_DOB_col_index],
+                        patients[patient_race_col_index],
+                    )
+                )  # O(4)
+        return patient_list  # O(1)
+    elif data_type == "Lab":  # O(1)
+        with open(filename, "r", encoding="utf-8-sig") as lab_file:  # O(1)
+            lab_lines = lab_file.readlines()  # O(M)
+            lab_file_list = []  # O(1)
+            for row in lab_lines:  # O(M)
+                row = row.split("\t")  # O(1)
+                lab_file_list.append(row)  # O(1)
+            lab_ID_col_index = lab_file_list[0].index("PatientID")  # O(M)
+            lab_test_col_index = lab_file_list[0].index("LabName")  # O(M)
+            lab_value_col_index = lab_file_list[0].index("LabValue")  # O(M)
+            lab_admission_col_index = lab_file_list[0].index("LabDateTime\n")  # O(M)
+            lab_list = []  # O(1)
+            for labs in lab_file_list[1:]:  # O(M)
+                lab_list.append(
+                    Lab(
+                        labs[lab_ID_col_index],
+                        labs[lab_test_col_index],
+                        labs[lab_value_col_index],
+                        labs[lab_admission_col_index],
+                    )
+                )  # O(4)
+        return lab_list  # O(1)
 
 
-# 1 + N + 1 + N * (1 + 1) + N + N + N + N + 1 + N * (4) + 1 -> 11(N) + 4 -> O(N)
+# 1 + 1 + N + 1 + N * (1 + 1) + N + N + N + N + 1 + N * (4) + 1 +
+# 1 + 1 + M + 1 + M * (1 + 1) + M + M + M + M + 1 + M * (4) + 1 -> 11(N) + 11(M) -> O(N) + O(M)
 
-
-def parse_lab_data(filename: str) -> list[Lab]:
-    """Read and parse the lab data file."""
-    # Header row must have variables named exactly as defined below
-    with open(filename, "r", encoding="utf-8-sig") as file:  # O(1)
-        lines = file.readlines()  # O(N)
-        file_list = []  # O(1)
-        for row in lines:  # O(N)
-            row = row.split("\t")  # O(1)
-            file_list.append(row)  # O(1)
-        lab_ID_col_index = file_list[0].index("PatientID")  # O(N)
-        lab_test_col_index = file_list[0].index("LabName")  # O(N)
-        lab_value_col_index = file_list[0].index("LabValue")  # O(N)
-        lab_admission_col_index = file_list[0].index("LabDateTime\n")  # O(N)
-        lab_list = []  # O(1)
-        for labs in file_list[1:]:  # O(N)
-            lab_list.append(
-                Lab(
-                    labs[lab_ID_col_index],
-                    labs[lab_test_col_index],
-                    labs[lab_value_col_index],
-                    labs[lab_admission_col_index],
-                )
-            )  # O(4)
-    return lab_list  # O(1)
-
-
-# 1 + N + 1 + N * (1 + 1) + N + N + N + N + 1 + N * (4) + 1 -> 11(N) + 4 -> O(N)
-
-# Both functions open the file and create a list, with every element of the list
-# being a row in the data file. They then use the header row of the data file
+# This function determines whether the data is patient or lab data, and then
+# it opens the file and create a list, with every element of the list
+# being a row in the data file. It then uses the header row of the data file
 # to find which index of each row contains the variable named in the header row.
-# After finding the indexes for the variables, the functions iterate through the
+# After finding the indexes for the variables, the function iterates through the
 # list of rows, taking the elements of the rows and defining the custom class
 # (Patient or Lab) attributes as the elements of the rows that match the
 # attributes. This will create a Patient or Lab object for each row in the dataset.
-# The functions then return a list of Patient objects or a list of Lab objects. The
-# overall complexity is O(N), which is linear time. Note that to add more columns
-# of the data as attributes, simply add the attributes to the Patient or Lab class,
-# define the index of the column in the function, and then add the attribute to
-# the Patient or Lab class in the function using that index.
+# The function then returns a list of Patient objects or a list of Lab objects. The
+# overall complexity is O(N) + O(M). Note that to add more columns of the data as
+# attributes, simply add the attributes to the Patient or Lab class, define the index
+# of the column in the function, and then add the attribute to the Patient or Lab
+# class in the function using that index.
 
 
 def num_older_than(age: float, patient_data: list[Patient]) -> int:
