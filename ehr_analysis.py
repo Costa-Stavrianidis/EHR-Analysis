@@ -7,7 +7,7 @@ class Patient:
 
     """Patient class with instance attributes."""
 
-    def __init__(self, ID: [str], gender: [str], DOB: [str], race: [str]):
+    def __init__(self, ID: str, gender: str, DOB: str, race: str):
         """Initialize the patient class."""
         self.ID = ID
         self.gender = gender
@@ -26,7 +26,7 @@ class Patient:
 class Lab:
     """Lab class with instance attributes."""
 
-    def __init__(self, ID: [str], test: [str], value: [str], admission: [str]):
+    def __init__(self, ID: str, test: str, value: str, admission: str):
         """Initialize the lab class."""
         self.ID = ID
         self.test = test
@@ -34,7 +34,7 @@ class Lab:
         self.admission = admission
 
 
-def parse_patient_data(filename: str) -> dict[str:Patient]:
+def parse_patient_data(filename: str) -> dict[str, Patient]:
     """Read and parse the patient data file."""
     # Header row must have variables named exactly as defined below
     with open(filename, "r", encoding="utf-8-sig") as patient_file:  # O(1)
@@ -61,7 +61,7 @@ def parse_patient_data(filename: str) -> dict[str:Patient]:
 # 1 + N + 1 + N * (2) + N + N + N + N + 1 + N * (4) + 1 -> 11(N) + 4 -> O(N)
 
 
-def parse_lab_data(filename: str) -> dict[str : list[Lab]]:
+def parse_lab_data(filename: str) -> dict[str, list[Lab]]:
     """Read and parse the lab data file."""
     # Header row must have variables named exactly as defined below
     with open(filename, "r", encoding="utf-8-sig") as lab_file:  # O(1)
@@ -110,7 +110,7 @@ def parse_lab_data(filename: str) -> dict[str : list[Lab]]:
 # the attribute to the Patient or Lab class in the function using that index.
 
 
-def num_older_than(age: float, patient_data: dict[str:Patient]) -> int:
+def num_older_than(age: float, patient_data: dict[str, Patient]) -> int:
     """Take data and return the number of patients older
     than a given age (in years).
 
@@ -132,8 +132,8 @@ def num_older_than(age: float, patient_data: dict[str:Patient]) -> int:
 
 
 def sick_patients(
-    lab: str, gt_lt: str, lab_value: float, lab_data: dict[str : list[Lab]]
-) -> list[str]:
+    lab: str, gt_lt: str, lab_value: float, lab_data: dict[str, list[Lab]]
+) -> set[str]:
     """Take data and return a unique list of patients who have a given test
     with value above (">") or below ("<") a given level.
 
@@ -152,11 +152,10 @@ def sick_patients(
         elif gt_lt == "<":  # O(1)
             if rows.value < lab_value:  # O(1)
                 patients_sick.add(rows.ID)  # O(1)
-    patients_sick = list(patients_sick)  # O(1)
     return patients_sick  # O(1)
 
 
-# 1 + 1 + N * (M) + N * (1 + 1 * 1 * 1 + 1 * 1 * 1) + 1 + 1 -> O(NM)
+# 1 + 1 + N * (M) + N * (1 + 1 * 1 * 1 + 1 * 1 * 1) + 1 -> O(NM)
 
 # This function takes data in the form of a dictionary of patient ID's and
 # Lab objects. It will iterate through the list of of Lab objects and create a unique
@@ -165,7 +164,7 @@ def sick_patients(
 
 
 def admission_age(
-    patient: str, patient_data: dict[str:Patient], lab_data: dict[str : list[Lab]]
+    patient: str, patient_data: dict[str, Patient], lab_data: dict[str, list[Lab]]
 ) -> int:
     """Take patient and lab data and return the age at first admission
     of any given patient.
