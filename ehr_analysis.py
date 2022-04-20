@@ -163,7 +163,7 @@ class Lab:
         return Admission_date
 
 
-def num_older_than(age: float, cur) -> int:
+def num_older_than(age: float) -> int:
     """Take data and return the number of patients older
     than a given age (in years).
 
@@ -190,19 +190,19 @@ def num_older_than(age: float, cur) -> int:
 # is O(N), so linear time.
 
 
-def sick_patients(test: str, gt_lt: str, lab_value: float, cur) -> set[str]:
+def sick_patients(test: str, gt_lt: str, lab_value: float) -> set[str]:
     """Take data and return a unique list of patients who have a given test
     with value above (">") or below ("<") a given level.
 
     """
     cur = con.cursor()
-    patients = []  # O(1)
+    lab_list = []  # O(1)
     patients_sick = set()  # O(1)
     cur.execute("SELECT * FROM Lab")  # O(1)
     labs_table = cur.fetchall()  # O(1)
     for labs in labs_table:  # O(M)
-        patients.append(Lab(cur, labs[0], labs[1], labs[3]))  # O(4)
-    for rows in patients:  # O(M)
+        lab_list.append(Lab(cur, labs[0], labs[1], labs[3]))  # O(4)
+    for rows in lab_list:  # O(M)
         if gt_lt == ">":  # O(1)
             if rows.value > lab_value and rows.test == test:  # O(2)
                 patients_sick.add(rows.ID)  # O(1)
@@ -221,7 +221,7 @@ def sick_patients(test: str, gt_lt: str, lab_value: float, cur) -> set[str]:
 # lab test value above or below a given level. The overall complexity is O(M).
 
 
-def admission_age(patient: str, cur) -> int:
+def admission_age(patient: str) -> int:
     """Take patient and lab data and return the age at first admission
     of any given patient.
 
