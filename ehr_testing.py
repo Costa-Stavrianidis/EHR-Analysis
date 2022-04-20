@@ -14,23 +14,8 @@ from ehr_analysis import (
 con = sqlite3.connect("ehr.db")
 cur = con.cursor()
 
-
-def test_parse_patient_data():
-    """Test parsing patient data."""
-    filename1 = "patient_test_data.txt"
-    parse_patient_data(filename1)
-    cur.execute("SELECT * FROM Patient")
-    assert print(cur.fetchall())[1][0] == "79A7BA2A-D35A-4CB8-A835-6BAA13B0058C"
-    assert print(cur.fetchall())[0][1] == "Male"
-
-
-def test_parse_lab_data():
-    """Test parsing lab data."""
-    filename2 = "lab_test_data.txt"
-    parse_lab_data(filename2)
-    cur.execute("SELECT * FROM Lab")
-    assert print(cur.fetchall())[0][1] == "CBC: RDW"
-    assert print(cur.fetchall())[2][2] == "0.5"
+parse_patient_data("patient_test_data.txt")
+parse_lab_data("lab_test_data.txt")
 
 
 def test_num_older_than():

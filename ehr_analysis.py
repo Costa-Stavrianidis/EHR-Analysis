@@ -4,12 +4,12 @@ from datetime import datetime
 import sqlite3
 
 con = sqlite3.connect("ehr.db")
-cur = con.cursor()
 
 
 def parse_patient_data(filename: str) -> None:
     """Read and parse the patient data file into a SQLite table."""
     # Header row must have variables named exactly as defined below
+    cur = con.cursor()
     cur.execute(
         "CREATE TABLE IF NOT EXISTS Patient ([patient_id] TEXT PRIMARY KEY, [gender] TEXT, [DOB] TEXT, [race] TEXT)"
     )  # O(1)
@@ -41,6 +41,7 @@ def parse_patient_data(filename: str) -> None:
 def parse_lab_data(filename: str) -> None:
     """Read and parse the lab data file into a SQLite table."""
     # Header row must have variables named exactly as defined below
+    cur = con.cursor()
     cur.execute(
         "CREATE TABLE IF NOT EXISTS Lab ([patient_id] TEXT, [test] TEXT, [value] TEXT, [test_date] TEXT)"
     )  # O(1)
@@ -167,6 +168,7 @@ def num_older_than(age: float, cur) -> int:
     than a given age (in years).
 
     """
+    cur = con.cursor()
     older = 0  # O(1)
     patient_list = []  # O(1)
     cur.execute("SELECT * FROM Patient")  # O(1)
@@ -193,6 +195,7 @@ def sick_patients(test: str, gt_lt: str, lab_value: float, cur) -> set[str]:
     with value above (">") or below ("<") a given level.
 
     """
+    cur = con.cursor()
     patients = []  # O(1)
     patients_sick = set()  # O(1)
     cur.execute("SELECT * FROM Lab")  # O(1)
@@ -223,6 +226,7 @@ def admission_age(patient: str, cur) -> int:
     of any given patient.
 
     """
+    cur = con.cursor()
     patient_labs = []  # O(1)
     cur.execute("SELECT * FROM Lab")  # O(1)
     lab_table = cur.fetchall()  # O(1)
