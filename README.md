@@ -1,3 +1,5 @@
+# BIOSTAT 821 EHR Project
+
 This file will provide documentation for end users and contributers for the ehr_analysis.py file.
 
 End users/contributors: To parse your EHR data, make sure the raw data is in your working directory, and simply provide the name of the file in string format. If it is not, provide the proper path to your data file. This data file must be in .txt format and tab delimited. The first functions, parse_patient_data and parse_lab_data, will each create a table in a SQLite database called "ehr.db". One will create a Patient table, and the other will create a Lab table. The Patient table has the patient ID as the key value and gender, DOB, and race as variables. The rows are different patients. The Lab table has the patient ID, name of test, value of test, and date of test as variables. The rows are different tests for a particular patient.
